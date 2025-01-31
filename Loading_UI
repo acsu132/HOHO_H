@@ -1,1 +1,7 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"))()
+task.spawn(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu132/HOHO_H/refs/heads/main/Loading_UIV2"))()
+end)
+
+task.spawn(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu132/HOHO_H/refs/heads/main/HOHO_HUB)
+end)
